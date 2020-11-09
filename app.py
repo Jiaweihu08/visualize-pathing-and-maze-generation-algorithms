@@ -18,10 +18,10 @@ num_cells_v = HEIGHT // cell_size
 num_cells = [num_cells_h, num_cells_v]
 
 algo_map = {'A*': astar, "Dijkstra's": dijkstra, 'Depth First Search': dfs}
-barrier_map = {'Draw it Yourself': [Spot, update_all_neighbors, 0.01],
-				'Recursive Division Maze': [Spot, recursive_division_maze, 0.02],
-				'DFS Maze': [DFSMazeSpot, dfs_maze, 0.02],
-				'Random Obstacles': [Spot, random_barriers, 0.01]}
+barrier_map = {'Draw it Yourself': [Spot, update_all_neighbors, 0],
+				'Recursive Division Maze': [Spot, recursive_division_maze, 0],
+				'DFS Maze': [DFSMazeSpot, dfs_maze, 0],
+				'Random Obstacles': [Spot, random_barriers, 0]}
 
 
 def get_clicked_pos(pos, cell_size):

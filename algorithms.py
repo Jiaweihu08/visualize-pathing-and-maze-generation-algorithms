@@ -1,4 +1,4 @@
-import pygame
+import pygame, sys
 from queue import PriorityQueue
 from collections import deque
 

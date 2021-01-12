@@ -1,5 +1,7 @@
 # Visualizing Path Finding Algorithms and Maze Generation
 
+![](./path_finding.gif)
+
 ## Objective:
 ### Use Pygame to visualize path finding algorithms and maze generation:
 
@@ -17,4 +19,4 @@
 ##### pip install -r requirements.txt
 ##### excute app.py file
 
-## Demo:https://youtu.be/I4dEXJq-kPw
+## Demo: https://youtu.be/I4dEXJq-kPw

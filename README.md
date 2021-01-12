@@ -16,7 +16,7 @@
 ##### - Randomly Generate Obstacles
 
 ## How to use:
-##### pip install -r requirements.txt
-##### excute app.py file
+##### install libraries: pip install -r requirements.txt
+##### run: python app.py
 
 ## Demo: https://youtu.be/I4dEXJq-kPw

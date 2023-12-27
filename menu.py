@@ -1,171 +1,158 @@
-import pygame, sys
+from dataclasses import dataclass
+import sys
 
+import pygame
+from pygame import Surface
+from pygame.font import Font
 
-WIDTH = 1200
-HEIGHT = 400
-screen_size = [WIDTH, HEIGHT]
+from algorithms.utils import Colors
 
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
 
 pygame.font.init()
-option_font = pygame.font.SysFont('Verdana', 15)
-title_font = pygame.font.SysFont('Verdana', 20)
-title_font.set_underline(True)
+TITLE_FONT = pygame.font.SysFont('Verdana', 20)
+TITLE_FONT.set_underline(True)
+OPTION_FONT = pygame.font.SysFont('Verdana', 15)
 
 
-title_names = ['Visualizing Path Finding Algorithms',
-				'Algorigthms',
-				'Barriers',
-				'Start']
+class MenuItem:
+    def __init__(self, name: str, surface: Surface, x: int, y: int, is_clickable: bool) -> None:
+        self.name: str = name
+        self.surface: Surface = surface
+        self.x: int = x
+        self.y: int = y
+        self.is_clickable: bool = is_clickable
 
-algo_names = ['A*', "Dijkstra's", 'Depth First Search']
+        surface_width = self.surface.get_width()
+        surface_height = self.surface.get_height()
 
-barrier_names = ['Draw it Yourself', 'Recursive Division Maze',
-					'DFS Maze', 'Random Obstacles']
+        top_left = (self.x, self.y)
+        top_right = (self.x + surface_width, self.y)
+        bottom_left = (self.x, self.y + surface_height)
+        bottom_right = (self.x + surface_width, self.y + surface_height)
+        self.points: list[(int, int)] = [top_left, top_right, bottom_left, bottom_right]
 
+    @classmethod
+    def create(cls, item_name: str, center: (int, int), font: Font, is_clickable: bool) -> "MenuItem":
+        item_surface = font.render(item_name, True, (0, 0, 0))
+        center_x, y = center
+        x = center_x - item_surface.get_width() // 2
+        return cls(item_name, item_surface, x, y, is_clickable)
 
-class MenuElement:
-	def __init__(self, surface, name, pos):
-		self.surface = surface
-		self.x, self.y = pos
-		self.name = name
+    def show(self, screen: Surface, is_selected: bool) -> None:
+        screen.blit(self.surface, (self.x, self.y))
+        if is_selected:
+            pygame.draw.lines(screen, Colors.BLACK.value, True, self.points, 2)
 
-	def show(self, screen, selected_item):
-		screen.blit(self.surface, (self.x, self.y))
-
-
-class ClickableElement(MenuElement):
-	def __init__(self, surface, name, pos):
-		MenuElement.__init__(self, surface, name, pos)
-		
-		self.get_rect()
-
-	def get_rect(self):
-		self.width = self.surface.get_width()
-		self.height = self.surface.get_height()
-
-		p1 = (self.x, self.y)
-		p2 = (self.x + self.width, self.y)
-		p3 = (self.x + self.width, self.y + self.height)
-		p4 = (self.x, self.y + self.height)
-
-		self.lines = [p1, p2, p3, p4]
-
-	def show(self, screen, selected_item):
-		if self.name in selected_item:
-			pygame.draw.lines(screen, BLACK, True, self.lines, 2)
-		screen.blit(self.surface, (self.x, self.y))
-
-	def is_selected(self, clicked_pos):
-		x, y = clicked_pos
-
-		selected_x = self.x <= x <= self.x + self.width
-		selected_y = self.y <= y <= self.y + self.height
-
-		if selected_x and selected_y:
-			return True
-		return False
+    def is_selected(self, clicked_pos: (int, int)) -> bool:
+        if self.is_clickable:
+            x, y = clicked_pos
+            is_selected_x = self.x <= x <= self.x + self.surface.get_width()
+            is_selected_y = self.y <= y <= self.y + self.surface.get_height()
+            return is_selected_x and is_selected_y
+        return False
 
 
-# ------------------------ Define title surfaces ans positions ------------------------
-titles = [title_font.render(title, True, BLACK) for title in title_names]
-title_pos = [[WIDTH//2, HEIGHT//8],
-				[WIDTH//4, HEIGHT//4],
-				[WIDTH//4*3, HEIGHT//4],
-				[WIDTH//2, HEIGHT//4*3]]
-for i in range(len(titles)):
-	title_pos[i][0] -= titles[i].get_width()//2
+def _get_item_column(column_title: str,
+                     column_start_position: (int, int),
+                     options: list[str],
+                     line_space: int = 30) -> (MenuItem, list[MenuItem]):
+    center_x, center_y = column_start_position
+    title_item = MenuItem.create(column_title, column_start_position, TITLE_FONT, False)
+    option_items = []
+    for option_name in options:
+        center_y += line_space
+        item = MenuItem.create(option_name, (center_x, center_y), OPTION_FONT, True)
+        option_items.append(item)
+    return title_item, option_items
 
 
-# ------------------------ Define algorithm surfaces ans positions ------------------------
-algo_options = [option_font.render(option, True, BLACK) for option in algo_names]
-algo_x = title_pos[1][0]
-algo_y = title_pos[1][1] + 30
-algo_pos = []
-for i in range(len(algo_options)):
-	algo_pos.append([algo_x, algo_y])
-	algo_y += 25
+@dataclass
+class Menu:
+    screen: Surface
+    title_item: MenuItem
+    pathing_title_item: MenuItem
+    pathing_algorithm_items: list[MenuItem]
+    barrier_title_item: MenuItem
+    barrier_items: list[MenuItem]
+    start_item: MenuItem
+    _selected_algo: str = "A*"
+    _selected_barrier: str = "Draw it Yourself"
+    _start: bool = False
+
+    @classmethod
+    def from_screen(cls, screen: Surface) -> "Menu":
+        w, h = screen.get_width(), screen.get_height()
+        title_item, _ = _get_item_column("Visualizing Path Finding Algorithms", (w // 2, h // 8), [])
+        pathing_title_item, pathing_items = _get_item_column(
+            "Pathing Algorithms",
+            (w // 4, h // 4),
+            ["A*", "Dijkstra's", "Depth First Search"]
+        )
+        barrier_title_item, barrier_items = _get_item_column(
+            "Barriers",
+            (w // 4 * 3, h // 4),
+            ["Draw it Yourself", "Recursive Division Maze", "DFS Maze", "Random Obstacles"]
+        )
+        start_item, _ = _get_item_column("Visualizing Path Finding Algorithms", (w // 2, h // 4 * 3), [])
+        return cls(
+            screen=screen,
+            title_item=title_item,
+            pathing_title_item=pathing_title_item,
+            pathing_algorithm_items=pathing_items,
+            barrier_title_item=barrier_title_item,
+            barrier_items=barrier_items,
+            start_item=start_item)
+
+    def show(self) -> None:
+        self.screen.fill(Colors.WHITE.value)
+        self.title_item.show(self.screen, False)
+        self.pathing_title_item.show(self.screen, False)
+        for algo_item in self.pathing_algorithm_items:
+            algo_item.show(self.screen, algo_item.name == self._selected_algo)
+        for barrier_item in self.barrier_items:
+            barrier_item.show(self.screen, barrier_item.name == self._selected_barrier)
+        self.start_item.show(self.screen, False)
+        pygame.display.update()
+
+    def update_selected_items(self, clicked_pos: (int, int)) -> None:
+        if self.start_item.is_selected(clicked_pos):
+            # Start visualizer with current selections
+            self._start = True
+        else:
+            for barrier in self.barrier_items:
+                if barrier.is_selected(clicked_pos):
+                    # Update pathing algorithm
+                    self._selected_barrier = barrier.name
+                    break
+            else:
+                for algo in self.pathing_algorithm_items:
+                    if algo.is_selected(clicked_pos):
+                        # Update barrier
+                        self._selected_algo = algo.name
+                        break
+
+    @property
+    def start(self) -> bool:
+        return self._start
+
+    @property
+    def selections(self) -> (str, str):
+        return self._selected_algo, self._selected_barrier
 
 
-# ------------------------ Define barrier surfaces ans positions ------------------------
-barrier_options = [option_font.render(option, True, BLACK) for option in barrier_names]
-barrier_x = title_pos[2][0]
-barrier_y = title_pos[2][1] + 30
-barrier_pos = []
-for i in range(len(barrier_options)):
-	barrier_pos.append([barrier_x, barrier_y])
-	barrier_y += 25
-
-
-# ------------------------ Creating objects for unclickables menu elements ------------------------
-unclickables = []
-for surf, name, pos in zip(titles[:-1], title_names[:-1], title_pos[:-1]):
-	unclickables.append(MenuElement(surf, name, pos))
-
-
-# ------------------------ Creating objects for clickables menu elements ------------------------
-clickable_items = algo_options + barrier_options + [titles[-1]]
-clickable_item_names = algo_names + barrier_names + [title_names[-1]]
-clickable_item_pos = algo_pos + barrier_pos + [title_pos[-1]]
-clickables = []
-for surf, name, pos in zip(clickable_items, clickable_item_names, clickable_item_pos):
-	clickables.append(ClickableElement(surf, name, pos))
-
-
-def display_menu(screen, selected_items,
-				clickables=clickables, unclickables=unclickables):
-	
-	screen.fill(WHITE)
-
-	for item in unclickables + clickables:
-		item.show(screen, selected_items)
-
-	pygame.display.update()
-
-
-def update_selected_items(pos, selected_items, clickables=clickables, barrier_x=barrier_x):
-	start = clickables[-1]
-	
-	if start.is_selected(pos):
-		return True, selected_items
-
-	elif pos[0] >= barrier_x:
-		candidates = clickables[len(algo_names):-1]
-		for cand in candidates:
-			if cand.is_selected(pos):
-				selected_items[1] = cand.name
-	else:
-		candidates = clickables[:len(algo_names)]
-		for cand in candidates:
-			if cand.is_selected(pos):
-				selected_items[0] = cand.name
-
-	return False, selected_items
-
-
-def menu_loop(screen):
-	selected_items = ["A*", 'Draw it Yourself']
-	start = False
-	
-	while start == False:
-		display_menu(screen, selected_items)
-		for event in pygame.event.get():
-			if event.type == pygame.QUIT:
-				pygame.quit()
-				sys.exit()
-
-			if pygame.mouse.get_pressed()[0]:
-				pos = pygame.mouse.get_pos()
-				start, selected_items = update_selected_items(pos, selected_items)
-				
-	return selected_items
+def menu_loop(screen: Surface) -> (str, str):
+    menu = Menu.from_screen(screen)
+    while not menu.start:
+        menu.show()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if pygame.mouse.get_pressed()[0]:
+                pos = pygame.mouse.get_pos()
+                menu.update_selected_items(pos)
+    return menu.selections
 
 
 if __name__ == "__main__":
-	screen = pygame.display.set_mode(screen_size)
-	menu_loop(screen)
-
-
-
-
+    menu_loop(pygame.display.set_mode((1200, 400)))

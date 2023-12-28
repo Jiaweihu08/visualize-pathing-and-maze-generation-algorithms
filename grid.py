@@ -1,36 +1,48 @@
+from __future__ import annotations
+
 from time import sleep
 
 import pygame
 from pygame import Surface
 
-from algorithms import SquareCell, PathingAlgorithm, BarrierSpecs, get_pathing_algorithm, get_barrier
+from algorithms.maze import SquareCell
+from algorithms import (
+    PathingAlgorithm,
+    BarrierSpecs,
+    get_pathing_algorithm,
+    get_barrier,
+)
 
 
 class Grid:
-    def __init__(self,
-                 cells: list[list[SquareCell]],
-                 pathing: PathingAlgorithm,
-                 barrier_spec: BarrierSpecs,
-                 num_cells_h: int,
-                 num_cells_v: int,
-                 cell_size: int) -> None:
-        self.cells = cells
-        self.pathing = pathing
-        self.barrier_spec = barrier_spec
-        self.num_cells_h = num_cells_h
-        self.num_cells_v = num_cells_v
-        self.cell_size = cell_size
+    def __init__(
+        self,
+        cells: list[list[SquareCell]],
+        pathing: PathingAlgorithm,
+        barrier_spec: BarrierSpecs,
+        num_cells_h: int,
+        num_cells_v: int,
+        cell_size: int,
+    ) -> None:
+        self.cells: list[list[SquareCell]] = cells
+        self.pathing: PathingAlgorithm = pathing
+        self.barrier_spec: BarrierSpecs = barrier_spec
+        self.num_cells_h: int = num_cells_h
+        self.num_cells_v: int = num_cells_v
+        self.cell_size: int = cell_size
 
-        self.start = None
-        self.end = None
+        self.start: SquareCell | None = None
+        self.end: SquareCell | None = None
 
     @classmethod
-    def create(cls,
-               pathing_name: str,
-               barrier_name: str,
-               num_cells_h: int,
-               num_cells_v: int,
-               cell_size: int) -> "Grid":
+    def create(
+        cls,
+        pathing_name: str,
+        barrier_name: str,
+        num_cells_h: int,
+        num_cells_v: int,
+        cell_size: int,
+    ) -> "Grid":
         pathing = get_pathing_algorithm(pathing_name)
         barrier_specs = get_barrier(barrier_name)
         cells = _get_cells(barrier_specs.cell_type, num_cells_h, num_cells_v, cell_size)
@@ -66,11 +78,11 @@ class Grid:
         if duration > 0:
             sleep(duration)
 
-    def draw_barriers(self, screen: Surface) -> None:
+    def generate_barriers(self, screen: Surface) -> None:
         self.barrier_spec.barrier_generation(self.cells, lambda: self.draw(screen))
 
     def find_path(self, screen: Surface) -> None:
-        self.pathing(self.start, self.end, self.draw(screen))
+        self.pathing(self.start, self.end, lambda _: self.draw(screen))
 
     def reset(self) -> None:
         self.start = None
@@ -84,10 +96,8 @@ class Grid:
 
 
 def _get_cells(
-        cell_cls: SquareCell.__class__,
-        num_cells_h: int,
-        num_cells_v: int,
-        cell_size: int) -> list[list[SquareCell]]:
+    cell_cls: SquareCell.__class__, num_cells_h: int, num_cells_v: int, cell_size: int
+) -> list[list[SquareCell]]:
     cells = []
     for i in range(num_cells_h):
         column_cells = []
@@ -97,3 +107,8 @@ def _get_cells(
         cells.append(column_cells)
     return cells
 
+
+if __name__ == "__main__":
+    grid = Grid.create("a*", "diy", 10, 10, 2)
+    assert len(grid.cells) == 10
+    assert len(grid.cells[0]) == 10

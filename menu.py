@@ -9,13 +9,25 @@ from algorithms.utils import Colors
 
 
 pygame.font.init()
-TITLE_FONT = pygame.font.SysFont('Verdana', 20)
+TITLE_FONT = pygame.font.SysFont("Verdana", 20)
 TITLE_FONT.set_underline(True)
-OPTION_FONT = pygame.font.SysFont('Verdana', 15)
+OPTION_FONT = pygame.font.SysFont("Verdana", 15)
+
+_map = {
+    "A*": "a*",
+    "Dijkstra's": "dijkstra",
+    "Depth First Search": "dfs",
+    "Draw it yourself": "diy",
+    "Recursive Division Maze": "recursive_division_maze",
+    "DFS Maze": "dfs",
+    "Random Obstacles": "random",
+}
 
 
 class MenuItem:
-    def __init__(self, name: str, surface: Surface, x: int, y: int, is_clickable: bool) -> None:
+    def __init__(
+        self, name: str, surface: Surface, x: int, y: int, is_clickable: bool
+    ) -> None:
         self.name: str = name
         self.surface: Surface = surface
         self.x: int = x
@@ -29,10 +41,12 @@ class MenuItem:
         top_right = (self.x + surface_width, self.y)
         bottom_left = (self.x, self.y + surface_height)
         bottom_right = (self.x + surface_width, self.y + surface_height)
-        self.points: list[(int, int)] = [top_left, top_right, bottom_left, bottom_right]
+        self.points: list[(int, int)] = [top_left, top_right, bottom_right, bottom_left]
 
     @classmethod
-    def create(cls, item_name: str, center: (int, int), font: Font, is_clickable: bool) -> "MenuItem":
+    def create(
+        cls, item_name: str, center: (int, int), font: Font, is_clickable: bool
+    ) -> "MenuItem":
         item_surface = font.render(item_name, True, (0, 0, 0))
         center_x, y = center
         x = center_x - item_surface.get_width() // 2
@@ -52,12 +66,16 @@ class MenuItem:
         return False
 
 
-def _get_item_column(column_title: str,
-                     column_start_position: (int, int),
-                     options: list[str],
-                     line_space: int = 30) -> (MenuItem, list[MenuItem]):
+def _get_item_column(
+    column_title: str,
+    column_start_position: (int, int),
+    options: list[str],
+    line_space: int = 30,
+) -> (MenuItem, list[MenuItem]):
     center_x, center_y = column_start_position
-    title_item = MenuItem.create(column_title, column_start_position, TITLE_FONT, False)
+    title_item = MenuItem.create(
+        column_title, column_start_position, TITLE_FONT, column_title == "Start"
+    )
     option_items = []
     for option_name in options:
         center_y += line_space
@@ -76,24 +94,31 @@ class Menu:
     barrier_items: list[MenuItem]
     start_item: MenuItem
     _selected_algo: str = "A*"
-    _selected_barrier: str = "Draw it Yourself"
+    _selected_barrier: str = "Draw it yourself"
     _start: bool = False
 
     @classmethod
     def from_screen(cls, screen: Surface) -> "Menu":
         w, h = screen.get_width(), screen.get_height()
-        title_item, _ = _get_item_column("Visualizing Path Finding Algorithms", (w // 2, h // 8), [])
+        title_item, _ = _get_item_column(
+            "Visualizing Path Finding Algorithms", (w // 2, h // 8), []
+        )
         pathing_title_item, pathing_items = _get_item_column(
             "Pathing Algorithms",
             (w // 4, h // 4),
-            ["A*", "Dijkstra's", "Depth First Search"]
+            ["A*", "Dijkstra's", "Depth First Search"],
         )
         barrier_title_item, barrier_items = _get_item_column(
             "Barriers",
             (w // 4 * 3, h // 4),
-            ["Draw it Yourself", "Recursive Division Maze", "DFS Maze", "Random Obstacles"]
+            [
+                "Draw it yourself",
+                "Recursive Division Maze",
+                "DFS Maze",
+                "Random Obstacles",
+            ],
         )
-        start_item, _ = _get_item_column("Visualizing Path Finding Algorithms", (w // 2, h // 4 * 3), [])
+        start_item, _ = _get_item_column("Start", (w // 2, h // 4 * 3), [])
         return cls(
             screen=screen,
             title_item=title_item,
@@ -101,7 +126,8 @@ class Menu:
             pathing_algorithm_items=pathing_items,
             barrier_title_item=barrier_title_item,
             barrier_items=barrier_items,
-            start_item=start_item)
+            start_item=start_item,
+        )
 
     def show(self) -> None:
         self.screen.fill(Colors.WHITE.value)
@@ -109,6 +135,7 @@ class Menu:
         self.pathing_title_item.show(self.screen, False)
         for algo_item in self.pathing_algorithm_items:
             algo_item.show(self.screen, algo_item.name == self._selected_algo)
+        self.barrier_title_item.show(self.screen, False)
         for barrier_item in self.barrier_items:
             barrier_item.show(self.screen, barrier_item.name == self._selected_barrier)
         self.start_item.show(self.screen, False)
@@ -137,7 +164,7 @@ class Menu:
 
     @property
     def selections(self) -> (str, str):
-        return self._selected_algo, self._selected_barrier
+        return _map.get(self._selected_algo), _map.get(self._selected_barrier)
 
 
 def menu_loop(screen: Surface) -> (str, str):

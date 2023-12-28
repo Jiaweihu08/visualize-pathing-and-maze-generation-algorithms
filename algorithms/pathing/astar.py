@@ -1,11 +1,11 @@
 from queue import PriorityQueue
 from collections.abc import Callable
 
-from algorithms.utils import set_caption, should_quit
-from algorithms.maze import SquareCell
+from ..utils import set_caption, should_quit
+from ..maze import SquareCell
 
 
-def astar(start: SquareCell, end: SquareCell, draw: Callable[None, None]) -> bool:
+def astar(start: SquareCell, end: SquareCell, draw: Callable[[None], None]) -> bool:
     """A* Algorith"""
     set_caption(astar.__doc__)
 
@@ -26,8 +26,8 @@ def astar(start: SquareCell, end: SquareCell, draw: Callable[None, None]) -> boo
             while curr.prev != start:
                 curr = curr.prev
                 curr.make_path()
-                draw()
-            set_caption(astar.__doc__ + '- Path Found!')
+                draw(None)
+            set_caption(astar.__doc__ + "- Path Found!")
             return True
 
         for neigh in curr.neighbors:
@@ -49,8 +49,8 @@ def astar(start: SquareCell, end: SquareCell, draw: Callable[None, None]) -> boo
         if curr != start:
             curr.make_examined()
 
-        draw()
-    set_caption(astar.__doc__ + '- No Path Found!')
+        draw(None)
+    set_caption(astar.__doc__ + "- No Path Found!")
     return False
 
 

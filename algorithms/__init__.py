@@ -1,21 +1,33 @@
 from collections import namedtuple
 from collections.abc import Callable
 
-from algorithms.maze import (update_all_neighbors, SquareCell, recursive_space_division,
-                             dfs_maze, DFSMazeCell, random_barriers)
-from algorithms.pathing.astar import astar
-from algorithms.pathing.dfs import dfs
-from algorithms.pathing.dijkstra import dijkstra
+from .maze import (
+    update_all_neighbors,
+    recursive_space_division,
+    dfs_maze,
+    DFSMazeCell,
+    random_barriers,
+)
+from .maze import SquareCell
+from .pathing import astar
+from .pathing import dfs
+from .pathing import dijkstra
 
-PathingAlgorithm = Callable[SquareCell, SquareCell, Callable[None, None]]
-pathing_algorithms: dict[str, PathingAlgorithm] = {"a*": astar, "dijkstra": dijkstra, "dfs": dfs}
+PathingAlgorithm = Callable[[SquareCell, SquareCell, Callable[[None], None]], bool]
+pathing_algorithms: dict[str, PathingAlgorithm] = {
+    "a*": astar,
+    "dijkstra": dijkstra,
+    "dfs": dfs,
+}
 
-BarrierSpecs = namedtuple("BarrierSpecs", ("cell_type", "barrier_generation", "duration"))
+BarrierSpecs = namedtuple(
+    "BarrierSpecs", ("cell_type", "barrier_generation", "duration")
+)
 barriers: dict[str, BarrierSpecs] = {
     "diy": BarrierSpecs(SquareCell, update_all_neighbors, 0),
-    'recursive_division_maze': BarrierSpecs(SquareCell, recursive_space_division, 0),
-    'dfs': BarrierSpecs(DFSMazeCell, dfs_maze, 0),
-    'random': BarrierSpecs(SquareCell, random_barriers, 0)
+    "recursive_division_maze": BarrierSpecs(SquareCell, recursive_space_division, 0),
+    "dfs": BarrierSpecs(DFSMazeCell, dfs_maze, 0),
+    "random": BarrierSpecs(SquareCell, random_barriers, 0),
 }
 
 

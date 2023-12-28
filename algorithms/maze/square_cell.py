@@ -1,14 +1,17 @@
+from __future__ import annotations
 import pygame
 from pygame import Surface
 
-from algorithms.utils import Colors
+from ..utils import Colors
 
 
 class SquareCell:
     # Pygame coordinate system has the origin in the top-left corner,
     # with the x-axis growing from left to right, and the y-axis from
     # top to bottom.
-    def __init__(self, i: int, j: int, cell_size: int, num_cells_h: int, num_cells_v: int) -> None:
+    def __init__(
+        self, i: int, j: int, cell_size: int, num_cells_h: int, num_cells_v: int
+    ) -> None:
         self.x_id: int = i
         self.y_id: int = j
 
@@ -21,14 +24,14 @@ class SquareCell:
 
         self.color: Colors = Colors.WHITE
 
-        self.dist: float = float('inf')
-        self.g_score: float = float('inf')
-        self.h_score: float = float('inf')
+        self.dist: float = float("inf")
+        self.g_score: float = float("inf")
+        self.h_score: float = float("inf")
 
-        self.prev = None
+        self.prev: SquareCell | None = None
         self.visited: bool = False
 
-        self.neighbors = []
+        self.neighbors: list[SquareCell] = []
 
     def is_start(self) -> bool:
         return self.color == Colors.START
@@ -62,11 +65,11 @@ class SquareCell:
         self.color = Colors.CLOSE
 
     def reset(self) -> None:
-        if not self.is_start() and not self.is_end():
-            self.color = Colors.WHITE
-        self.dist = float('inf')
-        self.g_score = float('inf')
-        self.h_score = float('inf')
+        # if not self.is_start() and not self.is_end():
+        self.color = Colors.WHITE
+        self.dist = float("inf")
+        self.g_score = float("inf")
+        self.h_score = float("inf")
         self.prev = None
         self.visited = False
 
@@ -74,33 +77,33 @@ class SquareCell:
         rect = pygame.Rect(self.x_coord, self.y_coord, self.cell_size, self.cell_size)
         pygame.draw.rect(screen, self.color.value, rect)
 
-    def update_neighbors(self, grid) -> None:
+    def update_neighbors(self, cells: list[list[SquareCell]]) -> None:
         """Populate accessible neighbors for the current cell."""
         self.neighbors = []
 
         # UP
         if self.y_id > 0:
-            neighbor_up = grid[self.x_id][self.y_id - 1]
+            neighbor_up = cells[self.x_id][self.y_id - 1]
             if not neighbor_up.is_barrier():
                 self.neighbors.append(neighbor_up)
 
         # RIGHT
         if self.x_id < self.num_cells_h - 1:
-            neighbor_right = grid[self.x_id + 1][self.y_id]
+            neighbor_right = cells[self.x_id + 1][self.y_id]
             if not neighbor_right.is_barrier():
                 self.neighbors.append(neighbor_right)
 
         # DOWN
         if self.y_id < self.num_cells_v - 1:
-            neighbor_down = grid[self.x_id][self.y_id + 1]
+            neighbor_down = cells[self.x_id][self.y_id + 1]
             if not neighbor_down.is_barrier():
                 self.neighbors.append(neighbor_down)
 
         # LEFT
         if self.x_id > 0:
-            neighbor_left = grid[self.x_id - 1][self.y_id]
+            neighbor_left = cells[self.x_id - 1][self.y_id]
             if not neighbor_left.is_barrier():
-                self.neighbors.append(grid[self.x_id - 1][self.y_id])
+                self.neighbors.append(cells[self.x_id - 1][self.y_id])
 
     def __lt__(self, other):
         return self.dist < other.dist

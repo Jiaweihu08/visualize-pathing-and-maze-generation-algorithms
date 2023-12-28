@@ -4,7 +4,7 @@ from algorithms.utils import set_caption, should_quit
 from algorithms.maze import SquareCell
 
 
-def dijkstra(start: SquareCell, end: SquareCell, draw: Callable[None, None]):
+def dijkstra(start: SquareCell, end: SquareCell, draw: Callable[[None], None]):
     """Dijkstra Algorithm"""
     set_caption(dijkstra.__doc__)
 
@@ -21,8 +21,8 @@ def dijkstra(start: SquareCell, end: SquareCell, draw: Callable[None, None]):
             while curr.prev != start:
                 curr = curr.prev
                 curr.make_path()
-                draw()
-            set_caption(dijkstra.__doc__ + '- Path Found!')
+                draw(None)
+            set_caption(dijkstra.__doc__ + "- Path Found!")
             return True
 
         for neighbor in curr.neighbors:
@@ -39,6 +39,6 @@ def dijkstra(start: SquareCell, end: SquareCell, draw: Callable[None, None]):
         if curr != start:
             curr.make_examined()
 
-        draw()
-    set_caption(dijkstra.__doc__ + '- No Path Found.')
+        draw(None)
+    set_caption(dijkstra.__doc__ + "- No Path Found.")
     return False

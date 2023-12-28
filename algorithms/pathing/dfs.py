@@ -5,7 +5,7 @@ from algorithms.utils import set_caption, should_quit
 from algorithms.maze import SquareCell
 
 
-def dfs(start: SquareCell, end: SquareCell, draw: Callable[None, None]) -> bool:
+def dfs(start: SquareCell, end: SquareCell, draw: Callable[[None], None]) -> bool:
     """Depth First Search Algorithm"""
     set_caption(dfs.__doc__)
 
@@ -25,8 +25,8 @@ def dfs(start: SquareCell, end: SquareCell, draw: Callable[None, None]) -> bool:
                 while curr.prev != start:
                     curr = curr.prev
                     curr.make_path()
-                    draw()
-                set_caption(dfs.__doc__ + '- Path Found!')
+                    draw(None)
+                set_caption(dfs.__doc__ + "- Path Found!")
                 return True
 
             if not neighbor.visited:
@@ -41,6 +41,6 @@ def dfs(start: SquareCell, end: SquareCell, draw: Callable[None, None]) -> bool:
         if curr != start:
             curr.make_examined()
 
-        draw()
-    set_caption(dfs.__doc__ + '- No Path Found.')
+        draw(None)
+    set_caption(dfs.__doc__ + "- No Path Found.")
     return False

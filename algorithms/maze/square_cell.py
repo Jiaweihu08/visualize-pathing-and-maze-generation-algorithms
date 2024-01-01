@@ -10,17 +10,17 @@ class SquareCell:
     # with the x-axis growing from left to right, and the y-axis from
     # top to bottom.
     def __init__(
-        self, i: int, j: int, cell_size: int, num_cells_h: int, num_cells_v: int
+        self, r: int, c: int, cell_size: int, num_rows: int, num_columns: int
     ) -> None:
-        self.x_id: int = i
-        self.y_id: int = j
+        self.row_id: int = r
+        self.col_id: int = c
 
-        self.x_coord: int = i * cell_size
-        self.y_coord: int = j * cell_size
+        self.x_coord: int = r * cell_size
+        self.y_coord: int = c * cell_size
 
         self.cell_size: int = cell_size
-        self.num_cells_h: int = num_cells_h
-        self.num_cells_v: int = num_cells_v
+        self.num_rows: int = num_rows
+        self.num_columns: int = num_columns
 
         self.color: Colors = Colors.WHITE
 
@@ -82,28 +82,28 @@ class SquareCell:
         self.neighbors = []
 
         # UP
-        if self.y_id > 0:
-            neighbor_up = cells[self.x_id][self.y_id - 1]
+        if self.col_id > 0:
+            neighbor_up = cells[self.row_id][self.col_id - 1]
             if not neighbor_up.is_barrier():
                 self.neighbors.append(neighbor_up)
 
         # RIGHT
-        if self.x_id < self.num_cells_h - 1:
-            neighbor_right = cells[self.x_id + 1][self.y_id]
+        if self.row_id < self.num_rows - 1:
+            neighbor_right = cells[self.row_id + 1][self.col_id]
             if not neighbor_right.is_barrier():
                 self.neighbors.append(neighbor_right)
 
         # DOWN
-        if self.y_id < self.num_cells_v - 1:
-            neighbor_down = cells[self.x_id][self.y_id + 1]
+        if self.col_id < self.num_columns - 1:
+            neighbor_down = cells[self.row_id][self.col_id + 1]
             if not neighbor_down.is_barrier():
                 self.neighbors.append(neighbor_down)
 
         # LEFT
-        if self.x_id > 0:
-            neighbor_left = cells[self.x_id - 1][self.y_id]
+        if self.row_id > 0:
+            neighbor_left = cells[self.row_id - 1][self.col_id]
             if not neighbor_left.is_barrier():
-                self.neighbors.append(cells[self.x_id - 1][self.y_id])
+                self.neighbors.append(cells[self.row_id - 1][self.col_id])
 
     def __lt__(self, other):
         return self.dist < other.dist

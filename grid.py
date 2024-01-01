@@ -15,20 +15,31 @@ from algorithms import (
 
 
 class Grid:
+    """2D SquareCell matrix:
+    e.g. Grid cells with num_rows=4, num_columns=3:
+    [
+        [_, _, _], # row0
+        [_, _, _], # row1
+        [_, x, _], # row2
+        [_, _, _]  # row3
+    ]
+    x here can be accessed through cells[2][1]
+    """
+
     def __init__(
         self,
         cells: list[list[SquareCell]],
         pathing: PathingAlgorithm,
         barrier_spec: BarrierSpecs,
-        num_cells_h: int,
-        num_cells_v: int,
+        num_rows: int,
+        num_columns: int,
         cell_size: int,
     ) -> None:
         self.cells: list[list[SquareCell]] = cells
         self.pathing: PathingAlgorithm = pathing
         self.barrier_spec: BarrierSpecs = barrier_spec
-        self.num_cells_h: int = num_cells_h
-        self.num_cells_v: int = num_cells_v
+        self.num_rows: int = num_rows
+        self.num_columns: int = num_columns
         self.cell_size: int = cell_size
 
         self.start: SquareCell | None = None
@@ -39,18 +50,18 @@ class Grid:
         cls,
         pathing_name: str,
         barrier_name: str,
-        num_cells_h: int,
-        num_cells_v: int,
+        num_rows: int,
+        num_columns: int,
         cell_size: int,
     ) -> "Grid":
         pathing = get_pathing_algorithm(pathing_name)
         barrier_specs = get_barrier(barrier_name)
-        cells = _get_cells(barrier_specs.cell_type, num_cells_h, num_cells_v, cell_size)
-        return cls(cells, pathing, barrier_specs, num_cells_h, num_cells_v, cell_size)
+        cells = _get_cells(barrier_specs.cell_type, num_rows, num_columns, cell_size)
+        return cls(cells, pathing, barrier_specs, num_rows, num_columns, cell_size)
 
     def process_click(self, pos: (int, int)) -> None:
-        i, j = self._get_clicked_cell_id(pos)
-        cell = self.cells[i][j]
+        r, c = self._get_clicked_cell_id(pos)
+        cell = self.cells[r][c]
         if not self.start and cell != self.end:
             # Set starting point
             cell.make_start()
@@ -65,13 +76,13 @@ class Grid:
 
     def _get_clicked_cell_id(self, pos: (int, int)) -> (int, int):
         x, y = pos
-        x_id = x // self.cell_size
-        y_id = y // self.cell_size
-        return x_id, y_id
+        col_id = x // self.cell_size
+        row_id = y // self.cell_size
+        return row_id, col_id
 
     def draw(self, screen: Surface, duration: int = 0):
-        for column_cells in self.cells:
-            for cell in column_cells:
+        for row in self.cells:
+            for cell in row:
                 cell.draw(screen)
 
         pygame.display.update()
@@ -87,8 +98,8 @@ class Grid:
     def reset(self) -> None:
         self.start = None
         self.end = None
-        for column_cells in self.cells:
-            for cell in column_cells:
+        for row in self.cells:
+            for cell in row:
                 cell.reset()
 
     def is_ready(self) -> bool:
@@ -96,19 +107,21 @@ class Grid:
 
 
 def _get_cells(
-    cell_cls: SquareCell.__class__, num_cells_h: int, num_cells_v: int, cell_size: int
+    cell_cls: SquareCell.__class__, num_rows: int, num_columns: int, cell_size: int
 ) -> list[list[SquareCell]]:
     cells = []
-    for i in range(num_cells_h):
-        column_cells = []
-        for j in range(num_cells_v):
-            cell = cell_cls(i, j, cell_size, num_cells_h, num_cells_v)
-            column_cells.append(cell)
-        cells.append(column_cells)
+    for r in range(num_rows):
+        row = []
+        for c in range(num_columns):
+            cell = cell_cls(r, c, cell_size, num_rows, num_columns)
+            row.append(cell)
+        cells.append(row)
     return cells
 
 
 if __name__ == "__main__":
-    grid = Grid.create("a*", "diy", 10, 10, 2)
-    assert len(grid.cells) == 10
-    assert len(grid.cells[0]) == 10
+    num_rows_ = 3
+    num_cols_ = 5
+    grid = Grid.create("a*", "diy", num_rows_, num_cols_, 2)
+    assert len(grid.cells) == num_rows_
+    assert len(grid.cells[0]) == num_cols_

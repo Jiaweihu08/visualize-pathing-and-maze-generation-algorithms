@@ -6,10 +6,8 @@ from ..utils import Colors
 
 
 class DFSMazeCell(SquareCell):
-    def __init__(
-        self, i: int, j: int, cell_size: int, num_cells_h: int, num_cells_v: int
-    ):
-        SquareCell.__init__(self, i, j, cell_size, num_cells_h, num_cells_v)
+    def __init__(self, r: int, c: int, cell_size: int, num_rows: int, num_columns: int):
+        SquareCell.__init__(self, r, c, cell_size, num_rows, num_columns)
 
         self.color: Colors = Colors.GREY
         self.lines: dict[str, (int, int)] = self._get_lines()
@@ -37,11 +35,11 @@ class DFSMazeCell(SquareCell):
 
     def update_reachable_cells(self, cells: list[list["DFSMazeCell"]]) -> None:
         self.reachable_cells = []
-        if self.x_id < self.num_cells_h - 1:
+        if self.x_id < self.num_rows - 1:
             self.reachable_cells.append(cells[self.x_id + 1][self.y_id])
         if self.x_id > 0:
             self.reachable_cells.append(cells[self.x_id - 1][self.y_id])
-        if self.y_id < self.num_cells_v - 1:
+        if self.y_id < self.num_columns - 1:
             self.reachable_cells.append(cells[self.x_id][self.y_id + 1])
         if self.y_id > 0:
             self.reachable_cells.append(cells[self.x_id][self.y_id - 1])

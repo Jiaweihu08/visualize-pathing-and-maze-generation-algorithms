@@ -10,16 +10,16 @@ from menu import menu_loop
 def main(screen: Surface):
     screen_width = screen.get_width()
     screen_height = screen.get_height()
-    num_cells_h = screen_width // 20
-    cell_size = screen_width // num_cells_h
-    num_cells_v = screen_height // cell_size
+    num_columns = screen_width // 20
+    cell_size = screen_width // num_columns
+    num_rows = screen_height // cell_size
 
     guide_1 = "Place a START and an END on the board and press SPACE to start."
     guide_2 = "Press C to clear the screen, and M to go back to the Menu."
     pygame.display.set_caption(guide_1)
 
     algo_name, barrier_name = menu_loop(screen)
-    grid = Grid.create(algo_name, barrier_name, num_cells_h, num_cells_v, cell_size)
+    grid = Grid.create(algo_name, barrier_name, num_rows, num_columns, cell_size)
 
     while True:
         grid.draw(screen)

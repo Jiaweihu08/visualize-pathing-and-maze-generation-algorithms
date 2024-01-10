@@ -15,8 +15,8 @@ class SquareCell:
         self.row_id: int = r
         self.col_id: int = c
 
-        self.x_coord: int = r * cell_size
-        self.y_coord: int = c * cell_size
+        self.x_coord: int = c * cell_size
+        self.y_coord: int = r * cell_size
 
         self.cell_size: int = cell_size
         self.num_rows: int = num_rows
@@ -81,29 +81,32 @@ class SquareCell:
         """Populate accessible neighbors for the current cell."""
         self.neighbors = []
 
-        # UP
+        # Add left neighbor
         if self.col_id > 0:
             neighbor_up = cells[self.row_id][self.col_id - 1]
             if not neighbor_up.is_barrier():
                 self.neighbors.append(neighbor_up)
 
-        # RIGHT
-        if self.row_id < self.num_rows - 1:
-            neighbor_right = cells[self.row_id + 1][self.col_id]
-            if not neighbor_right.is_barrier():
-                self.neighbors.append(neighbor_right)
-
-        # DOWN
+        # Add right neighbor
         if self.col_id < self.num_columns - 1:
             neighbor_down = cells[self.row_id][self.col_id + 1]
             if not neighbor_down.is_barrier():
                 self.neighbors.append(neighbor_down)
 
-        # LEFT
+        # Add up neighbor
         if self.row_id > 0:
             neighbor_left = cells[self.row_id - 1][self.col_id]
             if not neighbor_left.is_barrier():
                 self.neighbors.append(cells[self.row_id - 1][self.col_id])
 
-    def __lt__(self, other):
+        # Add down neighbor
+        if self.row_id < self.num_rows - 1:
+            neighbor_right = cells[self.row_id + 1][self.col_id]
+            if not neighbor_right.is_barrier():
+                self.neighbors.append(neighbor_right)
+
+    def __lt__(self, other) -> bool:
         return self.dist < other.dist
+
+    def __hash__(self) -> int:
+        return hash((self.row_id, self.col_id))

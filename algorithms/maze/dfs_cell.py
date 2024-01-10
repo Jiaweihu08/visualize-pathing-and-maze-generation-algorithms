@@ -1,3 +1,6 @@
+from random import randint
+from typing import Optional
+
 import pygame
 from pygame import Surface
 
@@ -12,8 +15,7 @@ class DFSMazeCell(SquareCell):
         self.color: Colors = Colors.GREY
         self.lines: dict[str, (int, int)] = self._get_lines()
 
-        self.neighbor_cells: list["DFSMazeCell"] = []
-        self.reachable_cells: list["DFSMazeCell"] = []
+        self.next_maze_cell_candidates: list["DFSMazeCell"] = []
 
     def _get_lines(self) -> dict[str, (int, int)]:
         # Relative point positions:
@@ -34,50 +36,61 @@ class DFSMazeCell(SquareCell):
         return lines
 
     def update_reachable_cells(self, cells: list[list["DFSMazeCell"]]) -> None:
-        self.reachable_cells = []
-        if self.x_id < self.num_rows - 1:
-            self.reachable_cells.append(cells[self.x_id + 1][self.y_id])
-        if self.x_id > 0:
-            self.reachable_cells.append(cells[self.x_id - 1][self.y_id])
-        if self.y_id < self.num_columns - 1:
-            self.reachable_cells.append(cells[self.x_id][self.y_id + 1])
-        if self.y_id > 0:
-            self.reachable_cells.append(cells[self.x_id][self.y_id - 1])
+        self.update_neighbors(cells)
+        self.next_maze_cell_candidates = self.neighbors
+        self.neighbors = []
+
+    def get_next_random_dfs_maze_cell(self) -> Optional["DFSMazeCell"]:
+        unvisited_candidates = [c for c in self.next_maze_cell_candidates if not c.visited]
+        self.next_maze_cell_candidates = unvisited_candidates
+        if len(unvisited_candidates) > 0:
+            idx = randint(0, len(unvisited_candidates) - 1)
+            return unvisited_candidates[idx]
+        else:
+            return None
 
     def remove_wall_between(self, other: "DFSMazeCell") -> None:
         """Remove the line between two adjacent cells."""
-        if other.x_id == self.x_id or other.y_id == self.y_id:
-            if self.y_id - other.y_id == 1:
+        if other.row_id == self.row_id or other.col_id == self.col_id:
+            if self.row_id - other.row_id == 1:
                 #   other
                 #   -----
                 #   self
                 self.lines.pop("top", None)
                 other.lines.pop("bottom", None)
 
-            elif other.y_id - self.y_id == 1:
+            elif other.row_id - self.row_id == 1:
                 #   self
                 #   -----
                 #   other
                 self.lines.pop("bottom", None)
                 other.lines.pop("top", None)
 
-            elif self.x_id - other.x_id == 1:
+            elif self.col_id - other.col_id == 1:
                 # other | self
                 self.lines.pop("left", None)
                 other.lines.pop("right", None)
 
-            elif other.y_id - self.y_id == 1:
+            elif other.col_id - self.col_id == 1:
                 # self | other
                 self.lines.pop("right", None)
                 other.lines.pop("left", None)
         else:
             return
 
-        other.reachable_cells.remove(self)
-        other.neighbor_cells.append(self)
-        self.neighbor_cells.append(other)
+        # self and other are now reachable during path finding
+        if other not in self.neighbors:
+            self.neighbors.append(other)
+        if self not in other.neighbors:
+            other.neighbors.append(self)
 
-    def enable(self) -> None:
+        # self and other are now not reachable during maze building
+        if other in self.next_maze_cell_candidates:
+            self.next_maze_cell_candidates.remove(other)
+        if self in other.next_maze_cell_candidates:
+            other.next_maze_cell_candidates.remove(self)
+
+    def make_visited_during_maze_generation(self) -> None:
         if not self.is_start() and not self.is_end():
             self.color = Colors.WHITE
         self.visited = True

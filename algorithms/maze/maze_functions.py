@@ -1,5 +1,5 @@
 from collections import deque
-from random import randint, shuffle
+from random import randint, shuffle, choice
 from typing import Callable
 
 from .square_cell import SquareCell
@@ -23,28 +23,23 @@ def dfs_maze(
         for cell in rows:
             cell.update_reachable_cells(cells)
 
-    root = cells[0][0]
-    root.enable()
+    row_id = randint(0, len(cells) - 1)
+    col_id = randint(0, len(cells[0]) - 1)
+    root = cells[row_id][col_id]
+    root.make_visited_during_maze_generation()
 
     stack = deque()
     stack.append(root)
-
     while stack:
         should_quit()
-
         curr = stack.pop()
-        curr.reachable_cells = [
-            cand for cand in curr.reachable_cells if not cand.visited
-        ]
-
-        if curr.reachable_cells:
-            stack.append(curr)
-            idx = randint(0, len(curr.reachable_cells) - 1)
-            candidate = curr.reachable_cells.pop(idx)
-
-            curr.remove_wall_between(candidate)
-            candidate.enable()
-            stack.append(candidate)
+        next_maze_cell = curr.get_next_random_dfs_maze_cell()
+        if next_maze_cell is not None:
+            curr.remove_wall_between(next_maze_cell)
+            next_maze_cell.make_visited_during_maze_generation()
+            if len(curr.next_maze_cell_candidates) > 0:
+                stack.append(curr)
+            stack.append(next_maze_cell)
 
         draw(None)
 

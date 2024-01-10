@@ -55,6 +55,4 @@ def astar(start: SquareCell, end: SquareCell, draw: Callable[[None], None]) -> b
 
 
 def compute_h_score(cell: SquareCell, end: SquareCell) -> int:
-    x1, y1 = cell.x_id, cell.y_id
-    x2, y2 = end.x_id, end.y_id
-    return abs(x1 - x2) + abs(y1 - y2)
+    return abs(cell.row_id - end.row_id) + abs(cell.col_id - end.col_id)

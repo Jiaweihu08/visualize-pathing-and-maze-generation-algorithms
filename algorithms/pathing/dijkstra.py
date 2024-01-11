@@ -1,12 +1,13 @@
 from collections.abc import Callable
 from heapq import heappop, heappush
 
+from algorithms.pathing.build_path import build_path
 from algorithms.utils import set_caption, should_quit
 from algorithms.maze import SquareCell
 
 
-def dijkstra(start: SquareCell, end: SquareCell, draw: Callable[[None], None]):
-    """Dijkstra Algorithm"""
+def dijkstra(start: SquareCell, end: SquareCell, draw: Callable[[], None]):
+    """Dijkstra's Algorithm"""
     set_caption(dijkstra.__doc__)
 
     q = [start]
@@ -16,10 +17,7 @@ def dijkstra(start: SquareCell, end: SquareCell, draw: Callable[[None], None]):
 
         # Completed, begin rebuilding the path
         if curr == end:
-            while curr.prev != start:
-                curr = curr.prev
-                curr.make_path()
-                draw(None)
+            build_path(curr, start, draw)
             set_caption(dijkstra.__doc__ + "- Path Found!")
             return True
 
@@ -34,6 +32,6 @@ def dijkstra(start: SquareCell, end: SquareCell, draw: Callable[[None], None]):
                 heappush(q, neighbor)
         if curr != start:
             curr.make_examined()
-        draw(None)
+        draw()
     set_caption(dijkstra.__doc__ + "- No Path Found.")
     return False

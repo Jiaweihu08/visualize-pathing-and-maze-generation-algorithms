@@ -1,5 +1,5 @@
 from collections import deque
-from random import randint, shuffle, choice
+from random import randint, shuffle
 from typing import Callable
 
 from .square_cell import SquareCell
@@ -9,7 +9,7 @@ from ..utils import should_quit
 
 
 def update_all_neighbors(
-    cells: list[list[SquareCell]], draw: Callable[[None], None]
+    cells: list[list[SquareCell]], draw: Callable[[], None]
 ) -> None:
     for rows in cells:
         for cell in rows:
@@ -17,7 +17,7 @@ def update_all_neighbors(
 
 
 def dfs_maze(
-    cells: list[list[DFSMazeCell]], draw: Callable[[None], None]
+    cells: list[list[DFSMazeCell]], draw: Callable[[], None]
 ) -> list[list[DFSMazeCell]]:
     for rows in cells:
         for cell in rows:
@@ -41,14 +41,18 @@ def dfs_maze(
                 stack.append(current_maze_cell)
             stack.append(next_maze_cell)
 
-        draw(None)
+        draw()
 
     return cells
 
 
 def recursive_space_division(
-    cells: list[list[SquareCell]], draw: Callable[[None], None]
+    cells: list[list[SquareCell]], draw: Callable[[], None]
 ) -> list[list[SquareCell]]:
+    for rows in cells:
+        for cell in rows:
+            if not cell.is_start() and not cell.is_end():
+                cell.reset()
     num_rows, num_columns = len(cells), len(cells[0])
     root = Chamber(0, num_rows - 1, 0, num_columns - 1, [], [])
     stack = deque()
@@ -62,7 +66,7 @@ def recursive_space_division(
 
 
 def random_barriers(
-    cells: list[list[SquareCell]], draw: Callable[[None], None]
+    cells: list[list[SquareCell]], draw: Callable[[], None]
 ) -> list[list[SquareCell]]:
     """Generate random barriers for each column from left to right."""
     num_rows, num_columns = len(cells), len(cells[0])
@@ -77,6 +81,6 @@ def random_barriers(
         row_barrier_idx = row_candidate_ids[:num_barriers]
         for row_id in row_barrier_idx:
             cells[row_id][column_id].make_barrier()
-            draw(None)
+            draw()
     update_all_neighbors(cells, draw)
     return cells

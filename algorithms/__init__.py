@@ -13,7 +13,7 @@ from .pathing import astar
 from .pathing import dfs
 from .pathing import dijkstra
 
-PathingAlgorithm = Callable[[SquareCell, SquareCell, Callable[[None], None]], bool]
+PathingAlgorithm = Callable[[SquareCell, SquareCell, Callable[[], None]], bool]
 pathing_algorithms: dict[str, PathingAlgorithm] = {
     "a*": astar,
     "dijkstra": dijkstra,

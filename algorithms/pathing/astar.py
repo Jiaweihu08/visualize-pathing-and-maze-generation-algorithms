@@ -1,12 +1,13 @@
 from queue import PriorityQueue
 from collections.abc import Callable
 
+from .build_path import build_path
 from ..utils import set_caption, should_quit
 from ..maze import SquareCell
 
 
-def astar(start: SquareCell, end: SquareCell, draw: Callable[[None], None]) -> bool:
-    """A* Algorith"""
+def astar(start: SquareCell, end: SquareCell, draw: Callable[[], None]) -> bool:
+    """A* Algorithm"""
     set_caption(astar.__doc__)
 
     q = PriorityQueue()
@@ -18,38 +19,34 @@ def astar(start: SquareCell, end: SquareCell, draw: Callable[[None], None]) -> b
 
     while q_set:
         should_quit()
-
         curr = q.get()[-1]
         q_set.remove(curr)
 
         if curr == end:
-            while curr.prev != start:
-                curr = curr.prev
-                curr.make_path()
-                draw(None)
+            build_path(curr, start, draw)
             set_caption(astar.__doc__ + "- Path Found!")
             return True
 
-        for neigh in curr.neighbors:
-            new_g_score = curr.g_score + 1
-            if neigh.g_score > new_g_score:
-                neigh.g_score = new_g_score
-                neigh.h_score = compute_h_score(neigh, end)
-                neigh.dist = neigh.g_score + neigh.h_score
-                neigh.prev = curr
+        new_g_score = curr.g_score + 1
+        for neighbor in curr.neighbors:
+            if neighbor.g_score > new_g_score:
+                neighbor.g_score = new_g_score
+                neighbor.h_score = compute_h_score(neighbor, end)
+                neighbor.dist = neighbor.g_score + neighbor.h_score
+                neighbor.prev = curr
 
-                if neigh not in q_set:
-                    if neigh != end:
-                        neigh.make_frontier()
+                if neighbor not in q_set:
+                    if neighbor != end:
+                        neighbor.make_frontier()
 
                     count += 1
-                    q.put((neigh.dist, count, neigh))
-                    q_set.add(neigh)
+                    q.put((neighbor.dist, count, neighbor))
+                    q_set.add(neighbor)
 
         if curr != start:
             curr.make_examined()
 
-        draw(None)
+        draw()
     set_caption(astar.__doc__ + "- No Path Found!")
     return False
 

@@ -20,7 +20,7 @@ def main(screen: Surface):
 
     algo_name, barrier_name = menu_loop(screen)
     grid = Grid.create(algo_name, barrier_name, num_rows, num_columns, cell_size)
-
+    solved = False
     while True:
         grid.draw(screen)
         for event in pygame.event.get():
@@ -32,21 +32,23 @@ def main(screen: Surface):
                 grid.process_click(pos)
             if event.type == KEYDOWN:
                 # Start visualization
-                if event.key == K_SPACE and grid.is_ready():
+                if event.key == K_SPACE and grid.is_ready() and not solved:
                     # Draw maze
                     grid.generate_barriers(screen)
                     # Solve path finding
-                    grid.find_path(screen)
+                    solved = grid.find_path(screen)
                     pygame.display.set_caption(guide_2)
                 # Clear
                 if event.key == K_c:
                     grid.reset()
+                    solved = False
                 # Back to menu
                 if event.key == K_m:
                     algo_name, barrier_name = menu_loop(screen)
                     grid = Grid.create(
                         algo_name, barrier_name, num_rows, num_columns, cell_size
                     )
+                    solved = False
 
                 pygame.display.set_caption(guide_1)
 

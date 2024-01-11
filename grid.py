@@ -90,10 +90,14 @@ class Grid:
             sleep(duration)
 
     def generate_barriers(self, screen: Surface) -> None:
-        self.barrier_spec.barrier_generation(self.cells, lambda _: self.draw(screen))
+        def _draw() -> None:
+            self.draw(screen)
+        self.barrier_spec.barrier_generation(self.cells, _draw)
 
-    def find_path(self, screen: Surface) -> None:
-        self.pathing(self.start, self.end, lambda _: self.draw(screen))
+    def find_path(self, screen: Surface) -> bool:
+        def _draw() -> None:
+            self.draw(screen)
+        return self.pathing(self.start, self.end, _draw)
 
     def reset(self) -> None:
         self.start = None

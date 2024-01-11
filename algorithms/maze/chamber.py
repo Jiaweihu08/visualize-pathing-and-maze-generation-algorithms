@@ -59,7 +59,7 @@ class Chamber:
             return False, -1, -1
 
     def divide(
-        self, cells: list[list[SquareCell]], draw: Callable[None, None]
+        self, cells: list[list[SquareCell]], draw: Callable[[], None]
     ) -> list["Chamber"]:
         if self.is_divisible:
             self._build_dividing_walls(cells, draw)
@@ -70,20 +70,20 @@ class Chamber:
             return []
 
     def _build_dividing_walls(
-        self, cells: list[list[SquareCell]], draw: Callable[[None], None]
+        self, cells: list[list[SquareCell]], draw: Callable[[], None]
     ) -> None:
         # build horizontal wall
         for cell in cells[self.center_row_id][self.col_id_min:self.col_id_max + 1]:
             cell.make_barrier()
-            draw(None)
+            draw()
         # build vertical wall
         for row in cells[self.row_id_min:self.row_id_max + 1]:
             cell = row[self.center_col_id]
             cell.make_barrier()
-            draw(None)
+            draw()
 
     def _open_doors(
-        self, cells: list[list[SquareCell]], draw: Callable[[None], None]
+        self, cells: list[list[SquareCell]], draw: Callable[[], None]
     ) -> dict[str, Wall]:
         # Illustration for Chamber c, and its sub-chambers c1, c2, c3, and c4:
         # c:
@@ -100,7 +100,7 @@ class Chamber:
             wall = Wall(wall_from, wall_to, door)
             if is_open:  # Reset this cell on the wall as door
                 cells[door_row_id][door_col_id].reset()
-                draw(None)
+                draw()
             return wall
 
         # Randomly select a wall to keep it closed

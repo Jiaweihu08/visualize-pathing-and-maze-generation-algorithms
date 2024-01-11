@@ -16,6 +16,7 @@ class DFSMazeCell(SquareCell):
         self.lines: dict[str, (int, int)] = self._get_lines()
 
         self.next_maze_cell_candidates: list["DFSMazeCell"] = []
+        self.visited_during_maze_generation: bool = False
 
     def _get_lines(self) -> dict[str, (int, int)]:
         # Relative point positions:
@@ -41,7 +42,9 @@ class DFSMazeCell(SquareCell):
         self.neighbors = []
 
     def update_maze_cell_candidates(self) -> None:
-        unvisited_candidates = [c for c in self.next_maze_cell_candidates if not c.visited]
+        unvisited_candidates = [c
+                                for c in self.next_maze_cell_candidates
+                                if not c.visited_during_maze_generation]
         self.next_maze_cell_candidates = unvisited_candidates
 
     def has_maze_cell_candidates(self) -> bool:
@@ -100,7 +103,7 @@ class DFSMazeCell(SquareCell):
     def make_maze_path(self) -> None:
         if not self.is_start() and not self.is_end():
             self.color = Colors.WHITE
-        self.visited = True
+        self.visited_during_maze_generation = True
 
     def reset(self) -> None:
         """Resetting cell for maze generation"""
@@ -113,6 +116,7 @@ class DFSMazeCell(SquareCell):
 
         self.lines = self._get_lines()
         self.next_maze_cell_candidates: list["DFSMazeCell"] = []
+        self.visited_during_maze_generation = False
 
     def draw(self, screen: Surface) -> None:
         rect = pygame.Rect(self.x_coord, self.y_coord, self.cell_size, self.cell_size)

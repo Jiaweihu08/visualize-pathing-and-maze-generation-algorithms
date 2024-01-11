@@ -51,7 +51,8 @@ def recursive_space_division(
 ) -> list[list[SquareCell]]:
     num_rows, num_columns = len(cells), len(cells[0])
     root = Chamber(0, num_rows - 1, 0, num_columns - 1, [], [])
-    stack = deque([root])
+    stack = deque()
+    stack.append(root)
     while stack:
         curr_chamber = stack.pop()
         sub_chambers = curr_chamber.divide(cells, draw)

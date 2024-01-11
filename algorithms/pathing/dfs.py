@@ -11,12 +11,9 @@ def dfs(start: SquareCell, end: SquareCell, draw: Callable[[None], None]) -> boo
 
     stack = deque()
     stack.append(start)
-
     while stack:
         should_quit()
-
         curr = stack.pop()
-
         if curr.neighbors:
             stack.append(curr)
             neighbor = curr.neighbors.pop(0)

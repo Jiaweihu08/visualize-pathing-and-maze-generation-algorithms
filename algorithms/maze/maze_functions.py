@@ -26,19 +26,19 @@ def dfs_maze(
     row_id = randint(0, len(cells) - 1)
     col_id = randint(0, len(cells[0]) - 1)
     root = cells[row_id][col_id]
-    root.make_visited_during_maze_generation()
+    root.make_maze_path()
 
     stack = deque()
     stack.append(root)
     while stack:
         should_quit()
-        curr = stack.pop()
-        next_maze_cell = curr.get_next_random_dfs_maze_cell()
+        current_maze_cell = stack.pop()
+        next_maze_cell = current_maze_cell.get_next_maze_cell()
         if next_maze_cell is not None:
-            curr.remove_wall_between(next_maze_cell)
-            next_maze_cell.make_visited_during_maze_generation()
-            if len(curr.next_maze_cell_candidates) > 0:
-                stack.append(curr)
+            current_maze_cell.remove_wall_between(next_maze_cell)
+            next_maze_cell.make_maze_path()
+            if current_maze_cell.has_maze_cell_candidates():
+                stack.append(current_maze_cell)
             stack.append(next_maze_cell)
 
         draw(None)

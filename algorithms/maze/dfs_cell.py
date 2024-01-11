@@ -40,12 +40,19 @@ class DFSMazeCell(SquareCell):
         self.next_maze_cell_candidates = self.neighbors
         self.neighbors = []
 
-    def get_next_random_dfs_maze_cell(self) -> Optional["DFSMazeCell"]:
+    def update_maze_cell_candidates(self) -> None:
         unvisited_candidates = [c for c in self.next_maze_cell_candidates if not c.visited]
         self.next_maze_cell_candidates = unvisited_candidates
-        if len(unvisited_candidates) > 0:
-            idx = randint(0, len(unvisited_candidates) - 1)
-            return unvisited_candidates[idx]
+
+    def has_maze_cell_candidates(self) -> bool:
+        return len(self.next_maze_cell_candidates) > 0
+
+    def get_next_maze_cell(self) -> Optional["DFSMazeCell"]:
+        """Randomly choose a cell among its unvisited neighboring cells."""
+        self.update_maze_cell_candidates()
+        if self.has_maze_cell_candidates():
+            idx = randint(0, len(self.next_maze_cell_candidates) - 1)
+            return self.next_maze_cell_candidates.pop(idx)
         else:
             return None
 
@@ -90,19 +97,22 @@ class DFSMazeCell(SquareCell):
         if self in other.next_maze_cell_candidates:
             other.next_maze_cell_candidates.remove(self)
 
-    def make_visited_during_maze_generation(self) -> None:
+    def make_maze_path(self) -> None:
         if not self.is_start() and not self.is_end():
             self.color = Colors.WHITE
         self.visited = True
 
-    # def reset(self) -> None:
-    #     if not self.is_start() and not self.is_end():
-    #         self.color = Colors.BLACK
-    #
-    #     self.dist = float("inf")
-    #     self.g_score = float("inf")
-    #     self.h_score = float("inf")
-    #     self.prev = None
+    def reset(self) -> None:
+        """Resetting cell for maze generation"""
+        self.color = Colors.GREY
+        self.dist = float("inf")
+        self.g_score = float("inf")
+        self.h_score = float("inf")
+        self.prev = None
+        self.visited = False
+
+        self.lines = self._get_lines()
+        self.next_maze_cell_candidates: list["DFSMazeCell"] = []
 
     def draw(self, screen: Surface) -> None:
         rect = pygame.Rect(self.x_coord, self.y_coord, self.cell_size, self.cell_size)

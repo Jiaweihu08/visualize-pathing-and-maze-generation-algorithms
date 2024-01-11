@@ -45,7 +45,7 @@ def main(screen: Surface):
                 if event.key == K_m:
                     algo_name, barrier_name = menu_loop(screen)
                     grid = Grid.create(
-                        algo_name, barrier_name, num_cells_h, num_cells_v, cell_size
+                        algo_name, barrier_name, num_rows, num_columns, cell_size
                     )
 
                 pygame.display.set_caption(guide_1)

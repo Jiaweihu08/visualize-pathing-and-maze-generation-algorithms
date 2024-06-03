@@ -38,7 +38,9 @@ class Chamber:
         # Walls should not be placed on these positions
         self.row_ids_to_avoid: list[int] = row_ids_to_avoid
         self.col_ids_to_avoid: list[int] = col_idx_to_avoid
-        self.is_divisible, self.center_row_id, self.center_col_id = self._select_center_ids()
+        self.is_divisible, self.center_row_id, self.center_col_id = (
+            self._select_center_ids()
+        )
 
     def _select_center_ids(self) -> (bool, int, int):
         row_ids_to_avoid_set = set(self.row_ids_to_avoid)
@@ -73,11 +75,11 @@ class Chamber:
         self, cells: list[list[SquareCell]], draw: Callable[[], None]
     ) -> None:
         # build horizontal wall
-        for cell in cells[self.center_row_id][self.col_id_min:self.col_id_max + 1]:
+        for cell in cells[self.center_row_id][self.col_id_min : self.col_id_max + 1]:
             cell.make_barrier()
             draw()
         # build vertical wall
-        for row in cells[self.row_id_min:self.row_id_max + 1]:
+        for row in cells[self.row_id_min : self.row_id_max + 1]:
             cell = row[self.center_col_id]
             cell.make_barrier()
             draw()
@@ -94,7 +96,11 @@ class Chamber:
         # -----------------------
 
         def get_wall(
-            wall_from: int, wall_to: int, door_row_id: int, door_col_id: int, is_open: bool
+            wall_from: int,
+            wall_to: int,
+            door_row_id: int,
+            door_col_id: int,
+            is_open: bool,
         ) -> Wall:
             door = Door(door_row_id, door_col_id, is_open)
             wall = Wall(wall_from, wall_to, door)
@@ -168,7 +174,12 @@ class Chamber:
                         col_ids_to_avoid.append(v_wall.door.col_id)
 
                     sub_chamber = Chamber(
-                        row_id_min, row_id_max, col_id_min, col_id_max, row_ids_to_avoid, col_ids_to_avoid
+                        row_id_min,
+                        row_id_max,
+                        col_id_min,
+                        col_id_max,
+                        row_ids_to_avoid,
+                        col_ids_to_avoid,
                     )
                     sub_chambers.append(sub_chamber)
         return sub_chambers

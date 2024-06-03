@@ -4,10 +4,11 @@ import pygame
 from pygame import Surface, KEYDOWN, K_SPACE, K_c, K_m
 
 from grid import Grid
-from menu import menu_loop
+from menu import create_menu, menu_loop
 
 
 def main(screen: Surface):
+    menu = create_menu(screen)
     screen_width = screen.get_width()
     screen_height = screen.get_height()
     num_columns = screen_width // 20
@@ -18,7 +19,7 @@ def main(screen: Surface):
     guide_2 = "Press C to clear the screen, and M to go back to the Menu."
     pygame.display.set_caption(guide_1)
 
-    algo_name, barrier_name = menu_loop(screen)
+    algo_name, barrier_name = menu_loop(menu, screen)
     grid = Grid.create(algo_name, barrier_name, num_rows, num_columns, cell_size)
     solved = False
     while True:
@@ -44,7 +45,7 @@ def main(screen: Surface):
                     solved = False
                 # Back to menu
                 if event.key == K_m:
-                    algo_name, barrier_name = menu_loop(screen)
+                    algo_name, barrier_name = menu_loop(menu, screen)
                     grid = Grid.create(
                         algo_name, barrier_name, num_rows, num_columns, cell_size
                     )

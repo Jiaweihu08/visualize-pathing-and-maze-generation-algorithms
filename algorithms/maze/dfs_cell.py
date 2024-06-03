@@ -42,9 +42,11 @@ class DFSMazeCell(SquareCell):
         self.neighbors = []
 
     def update_maze_cell_candidates(self) -> None:
-        unvisited_candidates = [c
-                                for c in self.next_maze_cell_candidates
-                                if not c.visited_during_maze_generation]
+        unvisited_candidates = [
+            c
+            for c in self.next_maze_cell_candidates
+            if not c.visited_during_maze_generation
+        ]
         self.next_maze_cell_candidates = unvisited_candidates
 
     def has_maze_cell_candidates(self) -> bool:

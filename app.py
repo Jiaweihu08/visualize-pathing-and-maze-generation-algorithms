@@ -4,14 +4,14 @@ import pygame
 from pygame import Surface, KEYDOWN, K_SPACE, K_c, K_m
 
 from grid import Grid
-from menu import create_menu, menu_loop
+from option_menu import create_menu, menu_loop
 
 
 def main(screen: Surface):
     menu = create_menu(screen)
     screen_width = screen.get_width()
     screen_height = screen.get_height()
-    num_columns = screen_width // 20
+    num_columns = screen_width // 15
     cell_size = screen_width // num_columns
     num_rows = screen_height // cell_size
 
@@ -55,8 +55,8 @@ def main(screen: Surface):
 
 
 if __name__ == "__main__":
-    WIDTH: int = 1300
-    HEIGHT: int = 500
+    WIDTH: int = 1400
+    HEIGHT: int = 800
     SCREEN_SIZE: (int, int) = (WIDTH, HEIGHT)
 
     pygame.init()

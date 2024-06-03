@@ -41,3 +41,6 @@ class MenuItem(MenuComponent):
         is_selected_x = self.x <= x <= self.x + self.surface.get_width()
         is_selected_y = self.y <= y <= self.y + self.surface.get_height()
         self.is_selected = self.is_selected or (is_selected_x and is_selected_y)
+
+    def reset(self) -> None:
+        self.is_selected = False

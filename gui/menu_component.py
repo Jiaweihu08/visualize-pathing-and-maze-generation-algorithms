@@ -36,3 +36,6 @@ class MenuComponent(ABC):
 
     def selections(self) -> (str, str):
         raise NotImplementedError
+
+    def reset(self) -> None:
+        raise NotImplementedError

@@ -50,4 +50,12 @@ class Menu(MenuItem):
     def selections(self) -> (str, str):
         pathing_name = self.pathing_item.get_name()
         barrier_name = self.barrier_item.get_name()
+        self.reset()
         return pathing_name, barrier_name
+
+    def reset(self) -> None:
+        self.start = False
+        self.pathing_item = None
+        self.barrier_item = None
+        for item in self.menu_items:
+            item.reset()
